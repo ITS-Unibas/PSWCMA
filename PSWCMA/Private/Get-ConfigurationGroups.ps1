@@ -43,7 +43,7 @@
 
         }
         catch {
-            Write-Error "Unable to get Groups from AD for this computer $Localhost"
+            Write-Warning "Unable to get Groups from AD for this computer $Localhost"
         }
 
     }
@@ -54,6 +54,9 @@
         $Groups.Add($BaseLineObject) | Out-Null
         Write-Debug $isOnline
         if ($isOnline) {
+            Save-GroupCache -Data $Groups -Path $Path
+        }
+        elseif (!(Test-Path -Path $Path)) {
             Save-GroupCache -Data $Groups -Path $Path
         }
         else {
