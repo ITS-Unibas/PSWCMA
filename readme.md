@@ -1,5 +1,5 @@
-#PSWCMA - PowerShell Windows Conifguration Management Agent
-##Introduction
+# PSWCMA - PowerShell Windows Conifguration Management Agent
+## Introduction
 Powershell module for applying DSC configurations automatically with Git
 
 The target is to fetch all Active Directory distribution groups with a specific prefix fromt the current client. 
@@ -11,17 +11,17 @@ The agent will run periodically (implemented with task scheduler from windows).
 
 *Important*: The folders in the git repo have to have the same name as the group names. 
 
-##Requirements
+## Requirements
 TBD
 
-##Getting started
-###Install PSWCMA using PowerShell Gallery
+## Getting started
+### Install PSWCMA using PowerShell Gallery
 The module can be installed with the PowerShell Gallery: https://www.powershellgallery.com
 The install command is:
 ```
 Install-Module -Name PSWCMA
 ```
-###Installing PSWCMA using git
+### Installing PSWCMA using git
 Or it can be cloned with git:
 ```
 git clone git@github.com:ITS-Unibas/PSWCMA.git
@@ -31,7 +31,7 @@ But when cloned with git, the repository must be cloned or at least copied in on
 $ENV:PSModulePath -split ';'
 ```
 
-###Configure the agent
+### Configure the agent
 The agent will be configured with `Initialize-CMAgent`. Basic example:
 ```
 Initialize-CMAgent -Path "C:\path\to\a\desiredfolder" -Git "https://git-server/yourgitrepo.git" -ActiveDirectory "FQDN.OF.DOMAIN" -Filter "Prefix-Of-DistributionGroups*" -Basline "Name-of-your-baseline-config"
@@ -39,7 +39,7 @@ Initialize-CMAgent -Path "C:\path\to\a\desiredfolder" -Git "https://git-server/y
 
 This will install the prequisits and configure the task scheduler.
 
-###Run installing configuration command
+### Run installing configuration command
 You can also trigger the installation of the configuration manually by running:
 ```
 Install-Configurations
