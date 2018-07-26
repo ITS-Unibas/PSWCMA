@@ -59,8 +59,8 @@
         New-ItemProperty -Path $RegPath -Name 'BaseLineConfig' -Value $Baseline -PropertyType String -Force
 
         #Install Pre-Reqs
-        if (!$PreReq.Win10) {
-            Write-Error 'This is not a Windows 10 Device. Going to End'
+        if (!$PreReq.WMF) {
+            Write-Error 'WMFVersion is lower than 5'
             break
         }
         if (!$PreReq.Git) {
