@@ -67,6 +67,10 @@
             Install-Git
         }
         if (!$PreReq.WinRM) {
+            $NetProfile = Get-NetConnectionProfile
+            if($NetProfile.NetworkCategory -eq 'Public') {
+                Set-NetConnectionProfile -InterfaceIndex $NetProfile.InterfaceIndex -NetworkCategory Private
+            }
             Set-WSManQuickConfig -Force
         }
         if (!$PreReq.CFW) {
