@@ -18,8 +18,6 @@
         $WMFVer = $PSVersionTable.PSVersion.Major
         $Git = Get-Command -Name git -ErrorAction SilentlyContinue
         $WinRM = Test-WSMan -ErrorAction SilentlyContinue
-        $XPSDSC = Get-DscResource -Module 'xPSDesiredStateConfiguration' | Select-Object -First 1
-        $CFW = Get-DscResource -Module 'cFirewall' | Select-Object -First 1
 
 
     }
@@ -29,12 +27,10 @@
             Git    = $null -ne $Git
             WMF  = $WMFVer -ge 5
             WinRM  = $null -ne $WinRM
-            XPSDSC = $null -ne $XPSDSC
-            CFW    = $null -ne $CFW
 
         }
 
-        if ($Prereq.Git -and $Prereq.CFW -and $Prereq.WMF -and $Prereq.WinRM -and $Prereq.XPSDSC) {
+        if ($Prereq.Git -and $Prereq.WMF -and $Prereq.WinRM) {
             $Prereq.All = $true
         }
     }
