@@ -40,17 +40,23 @@
 
                 $Group = $Groups[0].Name
                 Write-Verbose "Only one Configuration to install. Install from $ConfigurationPath\$Group"
-                $DSCJob = Start-DscConfiguration -Path "$ConfigurationPath\$Group" -ComputerName localhost -Wait -ErrorAction Stop
+                if (!(Test-FileHash -GroupName $Group -Path $ModuleConfig.FilePath)) {
+                    $DSCJob = Start-DscConfiguration -Path "$ConfigurationPath\$Group" -ComputerName localhost -Wait -ErrorAction Stop
+                }
             }
             else {
                 Write-Verbose "Going to install $ConfigCount Configurations"
                 foreach ($Group in $Groups) {
-                    Publish-DscConfiguration -Path "$ConfigurationPath\$($Group.Name)" -ComputerName localhost -ErrorAction Stop
+                    if (!(Test-FileHash -GroupName $Group -Path $ModuleConfig.FilePath)) {
+                        Publish-DscConfiguration -Path "$ConfigurationPath\$($Group.Name)" -ComputerName localhost -ErrorAction Stop
+                    }
                 }
                 $DSCJob = Start-DscConfiguration -UseExisting -ComputerName localhost -Wait -ErrorAction Stop
             }
 
-            Wait-Job -Job $DSCJob -Timeout 900
+            if ($DSCJob) {
+                Wait-Job -Job $DSCJob -Timeout 900
+            }
         }
         catch {
             Write-Error -Message $_.Exception.Message
@@ -64,11 +70,13 @@
                 elseif ($State -eq 'Failed') {
                     Remove-DscConfigurationDocument -Stage Pending
                 }
-            } else {
-                if((Get-DscLocalConfigurationManager).LCMState -eq 'PendingConfiguration') {
+            }
+            else {
+                if ((Get-DscLocalConfigurationManager).LCMState -eq 'PendingConfiguration') {
                     Remove-DscConfigurationDocument -Stage Pending
                 }
             }
+            Update-FileHash -GroupNames $Groups -Path $ModuleConfig.FilePath
         }
     }
     end {
