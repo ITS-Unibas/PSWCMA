@@ -73,12 +73,6 @@
             }
             Set-WSManQuickConfig -Force
         }
-        if (!$PreReq.CFW) {
-            Install-Module -Name 'cFirewall' -Force -Confirm:$false
-        }
-        if (!$PreReq.XPSDSC) {
-            Install-Module -Name 'xPSDesiredStateConfiguration' -Force -Confirm:$false
-        }
 
         if (!(Test-Prerequisites).All) {
             Write-Error 'There was an error installing the Prequisites'
