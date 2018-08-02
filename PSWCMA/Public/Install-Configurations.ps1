@@ -41,14 +41,20 @@
                 $Group = $Groups[0].Name
                 Write-Verbose "Only one Configuration to install. Install from $ConfigurationPath\$Group"
                 if (!(Test-FileHash -GroupName $Group -Path $ModuleConfig.FilePath)) {
-                    $DSCJob = Start-DscConfiguration -Path "$ConfigurationPath\$Group" -ComputerName localhost -Wait -ErrorAction Stop
+                    $Compilation = Invoke-ConfigurationCompilation -Path "$ConfigurationPath\$Group\$Group.ps1"
+                    if ($Compilation) {
+                        $DSCJob = Start-DscConfiguration -Path $Compilation.DirectoryName -ComputerName localhost -Wait -ErrorAction Stop
+                    }
                 }
             }
             else {
                 Write-Verbose "Going to install $ConfigCount Configurations"
                 foreach ($Group in $Groups) {
                     if (!(Test-FileHash -GroupName $Group -Path $ModuleConfig.FilePath)) {
-                        Publish-DscConfiguration -Path "$ConfigurationPath\$($Group.Name)" -ComputerName localhost -ErrorAction Stop
+                        $Compilation = Invoke-ConfigurationCompilation -Path "$ConfigurationPath\$Group\$Group.ps1"
+                        if ($Compilation) {
+                            Publish-DscConfiguration -Path $Compilation.DirectoryName -ComputerName localhost -ErrorAction Stop
+                        }
                     }
                 }
                 $DSCJob = Start-DscConfiguration -UseExisting -ComputerName localhost -Wait -ErrorAction Stop
