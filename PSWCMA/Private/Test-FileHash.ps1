@@ -34,7 +34,7 @@ function Test-FileHash {
             $Hashes = Get-Content -Path $PathJson | ConvertFrom-Json
             $FileName = "$GroupName.ps1"
             $CurrentHash = (Get-FileHash -Path "$Path\Configuration\$GroupName\$FileName").Hash
-            $ChachedHash = $Hashes.FileHashes | Select-Object -ExpandProperty $FileName | Select-Object -ExpandProperty Hash
+            $ChachedHash = $Hashes.FileHashes | Select-Object -ExpandProperty $FileName -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Hash -ErrorAction SilentlyContinue
             if($null -ne $ChachedHash -and $CurrentHash -eq $ChachedHash) {
                 return $true
             }
