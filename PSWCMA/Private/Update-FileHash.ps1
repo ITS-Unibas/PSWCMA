@@ -50,7 +50,7 @@ function Update-FileHash {
             "Hash" : "$FileHash"
         }
 "@
-            if ($Hashes.FileHashes | Select-Object -Property $FileName) {
+            if ($null -ne ($Hashes.FileHashes | Select-Object -Property $FileName).$FileName) {
                 $Hashes.FileHashes | Select-Object -ExpandProperty $FileName | Where-Object {
                      $_.Hash = $FileHash }
             }
