@@ -12,7 +12,10 @@ The agent will run periodically (implemented with task scheduler from windows).
 *Important*: The folders in the git repo have to have the same name as the group names. 
 
 ## Requirements
-TBD
+- WMF 5.0
+- Active Directory 
+- Git Repository
+    - Repository has to be public
 
 ## Getting started
 ### Install PSWCMA using PowerShell Gallery
