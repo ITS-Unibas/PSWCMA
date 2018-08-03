@@ -50,14 +50,14 @@
             else {
                 Write-Verbose "Going to install $ConfigCount Configurations"
                 foreach ($Group in $Groups) {
-                    if (!(Test-FileHash -GroupName $Group -Path $ModuleConfig.FilePath)) {
-                        $Compilation = Invoke-ConfigurationCompilation -Path "$ConfigurationPath\$Group\$Group.ps1"
+                    if (!(Test-FileHash -GroupName $Group.Name -Path $ModuleConfig.FilePath)) {
+                        $Compilation = Invoke-ConfigurationCompilation -Path "$ConfigurationPath\$($Group.Name)\$($Group.Name).ps1"
                         if ($Compilation) {
                             Publish-DscConfiguration -Path $Compilation.DirectoryName -ComputerName localhost -ErrorAction Stop
                         }
                     }
                 }
-                $DSCJob = Start-DscConfiguration -UseExisting -ComputerName localhost -Wait -ErrorAction Stop
+                $DSCJob = Start-DscConfiguration -UseExisting -ComputerName localhost -ErrorAction Stop
             }
 
             if ($DSCJob) {
@@ -73,15 +73,11 @@
                 if ($State -eq 'Running') {
                     Stop-Job -Job $DSCJob
                 }
-                elseif ($State -eq 'Failed') {
-                    Remove-DscConfigurationDocument -Stage Pending
-                }
             }
-            else {
-                if ((Get-DscLocalConfigurationManager).LCMState -eq 'PendingConfiguration') {
-                    Remove-DscConfigurationDocument -Stage Pending
-                }
+            if ((Get-DscLocalConfigurationManager).LCMState -eq 'PendingConfiguration') {
+                Remove-DscConfigurationDocument -Stage Pending
             }
+            
             Update-FileHash -GroupNames $Groups -Path $ModuleConfig.FilePath
         }
     }
