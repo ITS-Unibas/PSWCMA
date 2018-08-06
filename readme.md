@@ -44,3 +44,13 @@ You can also trigger the installation of the configuration manually by running:
 ```
 Install-Configurations
 ```
+
+## Remove the PSWCMA
+To remove the components of the PSWCMA run:
+```
+Uninstall-CMAgent
+```
+This command only removes the parts, which were created while the initialization of the PSWCMA. To remove the module itself run:
+```
+Uninstall-Module -Name "PSWCMA"
+```
