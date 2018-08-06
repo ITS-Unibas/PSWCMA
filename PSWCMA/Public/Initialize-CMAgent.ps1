@@ -48,6 +48,8 @@
     begin {
         $PreReq = Test-Prerequisites
         $RegPath = 'HKLM:\SOFTWARE\PSWCMA'
+        $RegPathAppwiz = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\PSWCMA'
+        $ModuleVersion = Get-InstalledModule -Name "PSWCMA" | Select-Object -ExpandProperty Version
     }
     process {
         #Write Configuration Cache
@@ -57,6 +59,21 @@
         New-ItemProperty -Path $RegPath -Name 'ActiveDirectory' -Value $ActiveDirectory -PropertyType String -Force
         New-ItemProperty -Path $RegPath -Name 'AdFilter' -Value $Filter -PropertyType String -Force
         New-ItemProperty -Path $RegPath -Name 'BaseLineConfig' -Value $Baseline -PropertyType String -Force
+
+        #Write appwiz data
+        New-Item -Path $RegPathAppwiz -Force
+        New-ItemProperty -Path $RegPathAppwiz -Name 'Comments' -Value 'PowerShell Windows Configuration Management Agent' -PropertyType String -Force
+        New-ItemProperty -Path $RegPathAppwiz -Name 'Contact' -Value 'University of Basel - ITS' -PropertyType String -Force
+        New-ItemProperty -Path $RegPathAppwiz -Name 'DisplayVersion' -Value "$ModuleVersion" -PropertyType String -Force
+        New-ItemProperty -Path $RegPathAppwiz -Name 'NoModify' -Value '1' -PropertyType DWORD -Force
+        New-ItemProperty -Path $RegPathAppwiz -Name 'NoRemove' -Value '1' -PropertyType DWORD -Force
+        New-ItemProperty -Path $RegPathAppwiz -Name 'Publisher' -Value 'University of Basel - ITS' -PropertyType String -Force
+        New-ItemProperty -Path $RegPathAppwiz -Name 'SystemComponent' -Value '0' -PropertyType DWORD -Force
+        New-ItemProperty -Path $RegPathAppwiz -Name 'URLInfoAbout' -Value 'www.unibas.ch' -PropertyType String -Force
+        New-ItemProperty -Path $RegPathAppwiz -Name 'DisplayName' -Value 'PSWCMA' -PropertyType String -Force
+        New-ItemProperty -Path $RegPathAppwiz -Name 'InstallLocation' -Value 'C:\Program Files\WindowsPowerShell\Modules\PSWCMA' -PropertyType String -Force
+        New-ItemProperty -Path $RegPathAppwiz -Name 'UninstallString' -Value '"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -WindowStyle Hidden -command "& {Import-Module PSWCMA; Uninstall-CMAgent}"' -PropertyType String -Force
+        New-ItemProperty -Path $RegPathAppwiz -Name 'DisplayIcon' -Value '%SystemRoot%\System32\SHELL32.dll,238' -PropertyType ExpandString -Force
 
         #Install Pre-Reqs
         if (!$PreReq.WMF) {
