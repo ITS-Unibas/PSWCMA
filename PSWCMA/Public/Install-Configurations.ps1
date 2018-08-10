@@ -34,13 +34,13 @@
     process {
         try {
             Get-Configurations -GitServer $ModuleConfig.Git -Path $ModuleConfig.FilePath -ErrorAction Stop
-
             Update-LocalConfigManager -ConfigCount $Groups.Count -ConfigNames $Groups -Path $ModuleConfig.FilePath -ErrorAction Stop
+            $HasConfigs = Get-DscConfiguration -ErrorAction SilentlyContinue
             if ($Groups.Count -eq 1) {
 
                 $Group = $Groups[0].Name
                 Write-Verbose "Only one Configuration to install. Install from $ConfigurationPath\$Group"
-                if (!(Test-FileHash -GroupName $Group -Path $ModuleConfig.FilePath)) {
+                if (!(Test-FileHash -GroupName $Group -Path $ModuleConfig.FilePath) -or !$HasConfigs) {
                     $Compilation = Invoke-ConfigurationCompilation -Path "$ConfigurationPath\$Group\$Group.ps1"
                     if ($Compilation) {
                         $DSCJob = Start-DscConfiguration -Path $Compilation.DirectoryName -ComputerName localhost -Wait -ErrorAction Stop
@@ -49,8 +49,14 @@
             }
             else {
                 Write-Verbose "Going to install $ConfigCount Configurations"
+                $PartialHashChanged = $false
                 foreach ($Group in $Groups) {
-                    if (!(Test-FileHash -GroupName $Group.Name -Path $ModuleConfig.FilePath)) {
+                    if(!(Test-FileHash -GroupName $Group.Name -Path $ModuleConfig.FilePath)) {
+                        $PartialHashChanged = $true
+                    }
+                }
+                foreach ($Group in $Groups) {
+                    if ($PartialHashChanged -or !$HasConfigs) {
                         $Compilation = Invoke-ConfigurationCompilation -Path "$ConfigurationPath\$($Group.Name)\$($Group.Name).ps1"
                         if ($Compilation) {
                             Publish-DscConfiguration -Path $Compilation.DirectoryName -ComputerName localhost -ErrorAction Stop

@@ -1,4 +1,4 @@
-# PSWCMA - PowerShell Windows Conifguration Management Agent
+# PSWCMA - PowerShell Windows Configuration Management Agent
 ## Introduction
 Powershell module for applying DSC configurations automatically with Git
 
