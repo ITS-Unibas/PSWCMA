@@ -35,7 +35,7 @@
         try {
             if (!(Test-Path $Path)) {
                 Write-Verbose "$Path is not existing. Will be created"
-                New-Item -Path $Path -ItemType Directory
+                New-Item -Path $Path -ItemType Directory | Out-Null
             }
 
             $Data | ConvertTo-Json | Out-File -FilePath "$Path\$Filename" -Force
