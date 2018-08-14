@@ -6,7 +6,11 @@
       .Description
       Downloads Configurations from your Git Repo
 
-      .Outputs
+      .Parameter GitServer
+      Url to the git repository where the configurations are located
+
+      .Parameter Path
+      Filepath where the git repository should be checked out
 
       #>
 

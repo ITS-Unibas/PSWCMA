@@ -4,16 +4,19 @@
       Reads Groups from AD where this computer is included
 
       .Description
-      Reads Groups from AD where this computer is included
+      Reads Groups with the correct prefix recursivly from AD where this computer is included.
 
       .Parameter Filter
-      Filter for samAccoutnName of the CCM Groups. Accepts Alias 'F'. Default "*ccm*"
+      Filter for samAccoutnName of the CCM Groups. Accepts Alias 'F'.
 
-      .Parameter LDAPPath
-      AD which should be searched in. Accepts Alias 'AD'. Default "UNIBASEL.ADS.UNIBAS.CH"
+      .Parameter ADServer
+      AD which should be searched in. Accepts Alias 'AD'.
+
+      .Parameter BaseLine
+      Name of the baseline config which also should be returned as group and saved to cache. Accepts Alias 'B'.
 
       .Outputs
-      System.String Array. Get-LDAPGroup returns an string array with all config groups. Can return null
+      System.Array. Get-LDAPGroup returns an string array with all config groups. Can return null
   #>
     [CmdletBinding()]
     param(
@@ -26,6 +29,7 @@
         [Parameter(Mandatory = $true)]
         $Path,
         [Parameter(Mandatory = $true)]
+        [alias('B')]
         $BaseLine
     )
     begin {
@@ -35,8 +39,10 @@
     }
     process {
         try {
+            #Get Distinguished Name of the current computer
             $DN = (Get-ADComputer $Localhost -Server $ADServer).DistinguishedName
             Write-Verbose "Distinguished Name of localhost is $DN"
+            #Search for groups with the specific filter for this computer and adds alls matches to the arraylist
             Get-ADGroup -LDAPFilter "(&(member:1.2.840.113556.1.4.1941:=$DN)(SamAccountName=$Filter))" -Properties member | Select-Object Name | ForEach-Object { $Groups.Add($_) | Out-Null }
             Write-Verbose "Computer is in the following Groups $Groups"
             $isOnline = $true
@@ -51,8 +57,10 @@
         $BaseLineObject = New-Object -TypeName psobject -Property @{
             Name = $BaseLine
         }
+        #Adds baseline group to the arraylist
         $Groups.Add($BaseLineObject) | Out-Null
         Write-Debug $isOnline
+        #if the there could be established a connection to the AD or the cache is not existing, the group cache will be saved. If not cache will be read
         if ($isOnline) {
             Save-GroupCache -Data $Groups -Path $Path
         }
