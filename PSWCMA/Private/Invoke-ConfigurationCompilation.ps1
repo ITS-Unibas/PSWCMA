@@ -7,14 +7,14 @@ Function Invoke-ConfigurationCompilation {
       Installs all needed configurations
 
       .Parameter Path
-      The absolut path to the configuration's ps1 file
+      The absolut path to the configuration's ps1 file. Alias is 'P'
 
       #>
 
       [CmdletBinding()]
       param (
         [Parameter(Mandatory=$true)]
-        [Alias('p')]
+        [Alias('P')]
         [string] $Path
       )
 
@@ -23,10 +23,12 @@ Function Invoke-ConfigurationCompilation {
             Write-Verbose "The path is invalid"
             break
         }
+        #Fetch filename 
         $FileName = Get-ChildItem -Path $Path | Select-Object -ExpandProperty Name
         Write-Verbose "Beginning to compile $FileName"
       } 
       process {
+        #Execute configuration to compile it 
         $Result = Invoke-Expression $Path
         Write-Verbose "$Result"
       }

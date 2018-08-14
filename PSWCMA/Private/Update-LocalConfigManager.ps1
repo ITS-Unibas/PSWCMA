@@ -30,6 +30,8 @@
     }
     process {
       try{
+        #Generates the LCM configuration file
+        #TO-DO: Options as params
         Add-Content -Path $LCMFilePath -Value '[DSCLocalConfigurationManager()]'
         Add-Content -Path $LCMFilePath -Value 'configuration LCMConfig'
         Add-Content -Path $LCMFilePath -Value '{'

@@ -20,10 +20,13 @@ Function Uninstall-CMAgent {
         $FilePath = Get-ItemProperty -Path $RegPath -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FilePath
       }
       process {
+        #delete scheduled task
         Unregister-ScheduledTask -TaskName 'Configuration Management Agent' -Confirm:$false -ErrorAction SilentlyContinue
         if($FilePath) {
+            #remove all files
             Remove-Item -Recurse -Path $FilePath -Force -ErrorAction SilentlyContinue
         }
+        #remove all registry items
         Remove-Item -Recurse $RegPath -Force -ErrorAction SilentlyContinue
         Remove-Item -Recurse -Path $RegPathAppwiz -Force -ErrorAction SilentlyContinue
       }

@@ -10,7 +10,7 @@
       File Path where the file should be stored. Alias is 'P'.
 
       .Parameter Data
-      File Path where the file should be stored
+      Data which should be stored in the chache. Alias is 'D'.
 
 
   #>
@@ -27,7 +27,6 @@
     )
 
     begin {
-        #Maybe should be stored as param (thinking...)
         $Filename = 'CachedAdGroups.json'
 
     }
@@ -37,7 +36,7 @@
                 Write-Verbose "$Path is not existing. Will be created"
                 New-Item -Path $Path -ItemType Directory | Out-Null
             }
-
+            #Converts the received data(groups) in a valid json file
             $Data | ConvertTo-Json | Out-File -FilePath "$Path\$Filename" -Force
             Write-Verbose "File created at $Path\$Filename"
         } catch {

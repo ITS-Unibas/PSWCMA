@@ -7,7 +7,7 @@
       Reads the cached json file where the AD Groups are stored
 
       .Parameter Path
-      File Path to the folder where it should be stored. Alias is 'P'.
+      File Path to the folder where the cache is located. Alias is 'P'.
 
        .Outputs
       System.String Array. Get-LDAPGroup returns an string array with all config groups
@@ -27,6 +27,7 @@
     }
     process {
         try {
+            #Reads groups from the cache. Chache has to be in json
             $Groups = Get-Content -Raw -Path  "$Path\$Filename" | ConvertFrom-Json
         } catch {
             Write-Error -Message $_.Exception.Message
