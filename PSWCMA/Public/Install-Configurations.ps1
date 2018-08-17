@@ -20,7 +20,7 @@
         }
         $ModuleConfig = Get-ItemProperty -Path 'HKLM:\SOFTWARE\PSWCMA' -ErrorAction SilentlyContinue
         if ($null -eq $ModuleConfig) {
-            Write-Error "There is no Configuration available"¨
+            Write-Error "There is no Configuration available"
             Write-Debug "Please run Initialize-CMAgent first"
             break
         }
@@ -33,7 +33,37 @@
     process {
         try {
             #Download all configurations
-            Get-Configurations -GitServer $ModuleConfig.Git -Path $ModuleConfig.FilePath -ErrorAction Stop
+            if ($null -ne $ModulConfig.TestGroup -and $Groups.Name -contains $ModuleConfig.TestGroup) {
+                Get-Configurations -GitServer $ModuleConfig.Git -Path $ModuleConfig.FilePath -Testing -TestBranchName $ModuleConfig.TestBranchName -ErrorAction Stop
+                
+            }
+            else {
+                Get-Configurations -GitServer $ModuleConfig.Git -Path $ModuleConfig.FilePath -ErrorAction Stop
+            }
+
+            #Exclude Groups which are not on the file system
+            $ConfigFolders = Get-ChildItem -Path "$($ModuleConfig.FilePath)\Configuration"
+            $Groups = [System.Collections.ArrayList]$Groups
+            $IndexToDelete = @()
+            foreach($Group in $Groups) {
+                if($ConfigFolders.Name -notcontains $Group.Name) {
+                    for($i = 0; $i -lt $Groups.Count; $i++) {
+                        if($Groups.Item($i).Name -eq $Group.Name) {
+                            $IndexToDelete += $i
+                        }
+                    }
+                }
+            }
+            for($j = 0; $j -lt $IndexToDelete.Count; $j++) {
+                $Groups.RemoveAt($j)
+                <# if($Groups.Item($i).Name -eq $Group.Name) {
+                    $ExclusionIndex = $i
+                    $Groups.RemoveAt($ExclusionIndex)
+                    break                            
+                } #>
+                
+            }
+
             #Update LCM
             #TO-DO: Do not always update LCM
             Update-LocalConfigManager -ConfigCount $Groups.Count -ConfigNames $Groups -Path $ModuleConfig.FilePath -ErrorAction Stop
@@ -57,7 +87,7 @@
                 $PartialHashChanged = $false
                 #Check if any partial configuration has changed
                 foreach ($Group in $Groups) {
-                    if(!(Test-FileHash -GroupName $Group.Name -Path $ModuleConfig.FilePath)) {
+                    if (!(Test-FileHash -GroupName $Group.Name -Path $ModuleConfig.FilePath)) {
                         $PartialHashChanged = $true
                     }
                 }

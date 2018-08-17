@@ -12,6 +12,12 @@
       .Parameter Path
       Filepath where the git repository should be checked out
 
+      .Parameter Testing
+      Switch Parameter to signalize test machine
+
+      .Parameter TestBranchName
+      Branch name for the testing branch
+
       #>
 
     [CmdletBinding()]
@@ -21,7 +27,11 @@
         [Parameter(Mandatory = $true)]
         $GitServer,
         [Parameter(Mandatory = $true)]
-        $Path
+        $Path,
+        [Parameter()]
+        [switch]$Testing,
+        [Parameter()]
+        $TestBranchName
     )
     begin {
         $CloneDirectory = "$Path\Configuration"
@@ -34,6 +44,11 @@
                 Start-Process "git" -ArgumentList "-C $CloneDirectory pull" -Wait
             } else {
                 Start-Process "git" -ArgumentList "clone $GitServer $CloneDirectory" -Wait
+            }
+
+            if($Testing) {
+                Start-Process "git" -ArgumentList "-C $CloneDirectory pull origin $TestBranchName" -Wait
+                Start-Process "git" -ArgumentList "-C $CloneDirectory checkout $TestBranchName"
             }
         } else {
             Write-Error "Git Repository is not available"
