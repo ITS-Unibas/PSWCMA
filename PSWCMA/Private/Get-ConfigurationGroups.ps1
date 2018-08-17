@@ -27,10 +27,10 @@
         [alias('AD')]
         [string]$ADServer,
         [Parameter(Mandatory = $true)]
-        $Path,
+        [string]$Path,
         [Parameter(Mandatory = $true)]
         [alias('B')]
-        $BaseLine
+        [string]$BaseLine
     )
     begin {
         $Localhost = hostname
