@@ -39,6 +39,10 @@ The agent will be configured with `Initialize-CMAgent`. Basic example:
 ```
 Initialize-CMAgent -Path "C:\path\to\a\desiredfolder" -Git "https://git-server/yourgitrepo.git" -ActiveDirectory "FQDN.OF.DOMAIN" -Filter "Prefix-Of-DistributionGroups*" -Basline "Name-of-your-baseline-config"
 ```
+You can setup test clients, which should test changed or new configurations. To do so configure your Test AD group und Test branch name (branch name of your git repo):
+```
+Initialize-CMAgent -Path "C:\path\to\a\desiredfolder" -Git "https://git-server/yourgitrepo.git" -ActiveDirectory "FQDN.OF.DOMAIN" -Filter "Prefix-Of-DistributionGroups*" -Basline "Name-of-your-baseline-config" -TestGroup "Name-of-your-TestGroup" -TestBranchName "testing"
+```
 
 This will install the prequisits and configure the task scheduler.
 
