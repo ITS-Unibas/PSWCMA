@@ -7,19 +7,27 @@
       Configures the Agent on the Client with all needed Dependencies
 
       .Parameter Path
-      Filepath for the working directory for this agent
+      Filepath for the working directory for this agent. Alias is 'P'.
 
       .Parameter Git
-      Give the link to your Git Repository. Repo must be public to allow anonymous access
+      Give the link to your Git Repository. Repo must be public to allow anonymous access. Alias is 'G'.
 
       .Parameter ActiveDirectory
-      FQDN for your Active Directory
+      FQDN for your Active Directory. Alias is 'AD'.
 
       .Parameter Filter
-      The AD Filter for the group prefix which should be searched
+      The AD Filter for the group prefix which should be searched. Alias is 'F'.
 
       .Parameter Baseline
-      The baseline configuration which always shoudld be applied. Only exists in git
+      The baseline configuration which always shoudld be applied. Only exists in git. Alias is 'B'.
+
+      .Parameter TestGroup
+      If this Group is set and the client is found in this group, the testing branch will be checked out. Alias is 'T'.
+
+      .Parameter TestBranchName
+      Define the name of the testing branch in git. Alias is 'TB'.
+
+      
 
       .Example
       Initialize-CMAgent -Path "C:\ProgramData\Unibasel\CCM" -Git "https://github.com/your-repo.git" -ActiveDirectory "Your.ActiveDirectory.com" -Filter "prefix-ccm*" -Baseline "prefix-ccm-baseline"
@@ -29,20 +37,27 @@
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
-        [Alias('p')]
+        [Alias('P')]
         [string]$Path,
         [Parameter(Mandatory = $true)]
-        [Alias('g')]
+        [Alias('G')]
         [string]$Git,
         [Parameter(Mandatory = $true)]
-        [Alias('ad')]
+        [Alias('AD')]
         [string]$ActiveDirectory,
         [Parameter(Mandatory = $true)]
-        [Alias('f')]
+        [Alias('F')]
         [string]$Filter,
         [Parameter(Mandatory = $true)]
-        [Alias('b')]
-        [string]$Baseline
+        [Alias('B')]
+        [string]$Baseline,
+        [Parameter(ParameterSetName = 'Testing')]
+        [Alias('T')]
+        [String]$TestGroup,
+        [Parameter(ParameterSetName = 'Testing')]
+        [Alias('TB')]
+        [String]$TestBranchName
+
 
     )
     begin {
@@ -59,6 +74,9 @@
         New-ItemProperty -Path $RegPath -Name 'ActiveDirectory' -Value $ActiveDirectory -PropertyType String -Force
         New-ItemProperty -Path $RegPath -Name 'AdFilter' -Value $Filter -PropertyType String -Force
         New-ItemProperty -Path $RegPath -Name 'BaseLineConfig' -Value $Baseline -PropertyType String -Force
+        New-ItemProperty -Path $RegPath -Name 'TestGroup' -Value $TestGroup -PropertyType String -Force
+        New-ItemProperty -Path $RegPath -Name 'TestBranchName' -Value $TestBranchName -PropertyType String -Force
+
 
         #Write appwiz data
         New-Item -Path $RegPathAppwiz -Force
@@ -85,7 +103,7 @@
         }
         if (!$PreReq.WinRM) {
             $NetProfile = Get-NetConnectionProfile
-            if($NetProfile.NetworkCategory -eq 'Public') {
+            if ($NetProfile.NetworkCategory -eq 'Public') {
                 Set-NetConnectionProfile -InterfaceIndex $NetProfile.InterfaceIndex -NetworkCategory Private
             }
             Set-WSManQuickConfig -Force
@@ -103,9 +121,10 @@
             $SchedulerTrigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 15) -RepetitionDuration (New-TimeSpan -Days (365 * 20)) -RandomDelay (New-TimeSpan -Minutes $Random)
             $SchedulerSettings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Hours 1)
             Register-ScheduledTask -User System -TaskName 'Configuration Management Agent' -Action $SchedulerAction -Trigger $SchedulerTrigger -Settings $SchedulerSettings -Force
-        } catch {
-          Write-Error -Message $_.Exception.Message
-          Write-Debug "There was an error creating the scheduled task. Please try again"
+        }
+        catch {
+            Write-Error -Message $_.Exception.Message
+            Write-Debug "There was an error creating the scheduled task. Please try again"
         }
 
     }
