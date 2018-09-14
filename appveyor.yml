@@ -1,0 +1,12 @@
+install:
+  - cinst pester
+
+os: WMF 5
+
+skip_commits:
+  message: /readme*/
+
+build: false
+
+test_script:
+  - ps: Invoke-Pester -Path ".\tests"
