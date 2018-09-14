@@ -1,5 +1,6 @@
 install:
   - cinst pester
+  - ps: Install-Module "PSWCMA"
 
 os: WMF 5
 
