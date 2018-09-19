@@ -1,4 +1,6 @@
 # PSWCMA - PowerShell Windows Configuration Management Agent
+[![Build status](https://ci.appveyor.com/api/projects/status/8mjuetd7f4g90hhj/branch/production?svg=true)](https://ci.appveyor.com/project/LizenzManagement/pswcma/branch/production)
+
 ## Introduction
 Powershell module for applying DSC configurations automatically with Git
 
