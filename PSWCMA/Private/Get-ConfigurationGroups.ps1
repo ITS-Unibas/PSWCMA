@@ -12,6 +12,9 @@
       .Parameter ADServer
       AD which should be searched in. Accepts Alias 'AD'.
 
+      .Parameter Path
+      Path to the cache file
+
       .Parameter BaseLine
       Name of the baseline config which also should be returned as group and saved to cache. Accepts Alias 'B'.
 
@@ -30,25 +33,44 @@
         [string]$Path,
         [Parameter(Mandatory = $true)]
         [alias('B')]
-        [string]$BaseLine
+        [string]$BaseLine,
+        [Parameter(Mandatory = $true)]
+        [string]$UserName,
+        [Parameter(Mandatory = $true)]
+        [string]$Password
     )
     begin {
-        $Localhost = hostname
         $Groups = New-Object System.Collections.ArrayList
         $isOnline = $false
     }
     process {
         try {
-            #Get Distinguished Name of the current computer
-            $DN = (Get-ADComputer $Localhost -Server $ADServer).DistinguishedName
+            #Convert secure string back to plaintext
+            $SecureString = ConvertTo-SecureString $Password
+            $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecureString)
+            $Password = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+            $DirectoryObject = New-Object System.DirectoryServices.DirectoryEntry("LDAP://$($ADServer):636", $UserName, $Password)
+            #Get distingiuished name of localhost
+            $DNFilter = "(&(objectCategory=computer)(objectClass=computer)(cn=$env:COMPUTERNAME))"
+            $DNSearcher = New-Object System.DirectoryServices.DirectorySearcher($DirectoryObject, $DNFilter)
+            $DN = $DNSearcher.FindOne().Properties.distinguishedname
             Write-Verbose "Distinguished Name of localhost is $DN"
             #Search for groups with the specific filter for this computer and adds alls matches to the arraylist
-            Get-ADGroup -LDAPFilter "(&(member:1.2.840.113556.1.4.1941:=$DN)(SamAccountName=$Filter))" -Properties member | Select-Object Name | ForEach-Object { $Groups.Add($_) | Out-Null }
+            $GroupFilter = "(&(member:1.2.840.113556.1.4.1941:=$DN)(SamAccountName=$Filter))"
+            $GroupSearcher = New-Object System.DirectoryServices.DirectorySearcher($DirectoryObject, $GroupFilter)
+            $GroupStrings = $GroupSearcher.FindAll().Properties.samaccountname
+            foreach ($String in $GroupStrings) {
+                $GroupObject = New-Object -TypeName psobject -Property @{
+                    Name = $String
+                }
+                $Groups.Add($GroupObject) | Out-Null
+            }
             Write-Verbose "Computer is in the following Groups $Groups"
             $isOnline = $true
-
+            
         }
         catch {
+            Write-Verbose -Message $_.Exception.Message
             Write-Warning "Unable to get Groups from AD for this computer $Localhost"
         }
 

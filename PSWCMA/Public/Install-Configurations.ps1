@@ -25,7 +25,7 @@
             break
         }
         $ConfigurationPath = "$($ModuleConfig.FilePath)\Configuration"
-        $Groups = [array](Get-ConfigurationGroups -Filter $ModuleConfig.AdFilter -ADServer $ModuleConfig.ActiveDirectory -Path $ModuleConfig.FilePath -Baseline $ModuleConfig.BaseLineConfig)
+        $Groups = [array](Get-ConfigurationGroups -Filter $ModuleConfig.AdFilter -ADServer $ModuleConfig.ActiveDirectory -UserName $ModuleConfig.LDAPUserName -Password $ModuleConfig.LDAPPassword -Path $ModuleConfig.FilePath -Baseline $ModuleConfig.BaseLineConfig)
         if ($null -eq $Groups) {
             Write-Error -Message 'There was an error getting the groups or finding the cache'
         }

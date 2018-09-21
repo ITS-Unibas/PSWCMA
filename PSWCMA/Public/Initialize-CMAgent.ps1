@@ -15,6 +15,12 @@
       .Parameter ActiveDirectory
       FQDN for your Active Directory. Alias is 'AD'.
 
+      .Parameter LDAPUserName
+      Username for querying AD. Format is 'Domain\Username'. Alias is 'U'
+
+      .Parameter LDAPPassword
+      Password for your LDAP user. Alias is 'P'
+
       .Parameter Filter
       The AD Filter for the group prefix which should be searched. Alias is 'F'.
 
@@ -46,6 +52,12 @@
         [Alias('AD')]
         [string]$ActiveDirectory,
         [Parameter(Mandatory = $true)]
+        [Alias('U')]
+        [string]$LDAPUserName,
+        [Parameter(Mandatory = $true)]
+        [Alias('PW')]
+        [string]$LDAPPassword,
+        [Parameter(Mandatory = $true)]
         [Alias('F')]
         [string]$Filter,
         [Parameter(Mandatory = $true)]
@@ -67,11 +79,17 @@
         $ModuleVersion = Get-InstalledModule -Name "PSWCMA" | Select-Object -ExpandProperty Version
     }
     process {
+        #Secure Password
+        $SecureString = ConvertTo-SecureString -AsPlainText $LDAPPassword -Force
+        $SecuredPW = ConvertFrom-SecureString -SecureString $SecureString
+
         #Write Configuration Cache
         New-Item -Path $RegPath -Force
         New-ItemProperty -Path $RegPath -Name 'FilePath' -Value $Path -PropertyType String -Force
         New-ItemProperty -Path $RegPath -Name 'Git' -Value $Git -PropertyType String -Force
         New-ItemProperty -Path $RegPath -Name 'ActiveDirectory' -Value $ActiveDirectory -PropertyType String -Force
+        New-ItemProperty -Path $RegPath -Name 'LDAPUserName' -Value $LDAPUserName -PropertyType String -Force
+        New-ItemProperty -Path $RegPath -Name 'LDAPPassword' -Value $SecuredPW -PropertyType String -Force
         New-ItemProperty -Path $RegPath -Name 'AdFilter' -Value $Filter -PropertyType String -Force
         New-ItemProperty -Path $RegPath -Name 'BaseLineConfig' -Value $Baseline -PropertyType String -Force
         New-ItemProperty -Path $RegPath -Name 'TestGroup' -Value $TestGroup -PropertyType String -Force
