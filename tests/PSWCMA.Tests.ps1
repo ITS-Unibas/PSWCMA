@@ -188,11 +188,13 @@ InModuleScope "PSWCMA" {
             }
 
             It "should be initialized" {
-                Initialize-CMAgent -Path $TestPath -Git "https://github.com/git.git" -ActiveDirectory "AD.AD.com" -Filter "ccm-windows*" -Baseline $TestGroup
+                Initialize-CMAgent -Path $TestPath -Git "https://github.com/git.git" -ActiveDirectory "AD.AD.com" -LDAPUserName "domain\user" -LDAPPassword "password" -Filter "ccm-windows*" -Baseline $TestGroup
                 Get-ScheduledTask -TaskName "Configuration Management Agent" -ErrorAction SilentlyContinue | Should Not Be $null
                 $ModuleConfig = Get-ItemProperty -Path 'HKLM:\SOFTWARE\PSWCMA'
                 $ModuleConfig.FilePath | Should BeExactly $TestPath
                 $ModuleConfig.ActiveDirectory | Should BeExactly "AD.AD.com"
+                $ModuleConfig.LDAPUserName | Should BeExactly "domain\user"
+                $ModuleConfig.LDAPPassword | Should Not Be "password"
                 $ModuleConfig.AdFilter | Should BeExactly "ccm-windows*"
                 $ModuleConfig.BaseLineConfig | Should BeExactly $TestGroup
                 $ModuleConfig.Git | Should BeExactly "https://github.com/git.git"
@@ -203,7 +205,7 @@ InModuleScope "PSWCMA" {
 
         Context "Uninstall agent's components" {
             BeforeEach {
-                Initialize-CMAgent -Path $TestPath -Git "https://github.com/git.git" -ActiveDirectory "AD.AD.com" -Filter "ccm-windows*" -Baseline $TestGroup
+                Initialize-CMAgent -Path $TestPath -Git "https://github.com/git.git" -ActiveDirectory "AD.AD.com" -LDAPUserName "domain\user" -LDAPPassword "password" -Filter "ccm-windows*" -Baseline $TestGroup
             }
 
             It "should be unconfigured" {
