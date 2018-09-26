@@ -9,6 +9,12 @@ install:
 skip_commits:
   message: /readme*/
 
+environment:
+    NuGetApiKey:
+        secure: ZYCY8zdVpCxcNjcLo8iXz2+jI1mKvedB0/XohBi4cctYuQP8RKcbTHI8TY/0ryfh
+
+skip_branch_with_pr: true
+
 build: false
 
 test_script:
@@ -37,3 +43,6 @@ test_script:
           $Error | Format-List * -Force
           exit 1
       }
+
+deploy_script:
+    - ps: . .\build_module.ps1
