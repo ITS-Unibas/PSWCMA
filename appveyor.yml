@@ -15,9 +15,6 @@ environment:
 
 skip_branch_with_pr: true
 
-build_script:
-    - ps: . .\build_module.ps1
-
 test_script:
   - ps: |
       $testResultsFile = Join-Path $Env:APPVEYOR_BUILD_FOLDER TestResults.xml
@@ -44,3 +41,6 @@ test_script:
           $Error | Format-List * -Force
           exit 1
       }
+
+build_script:
+    - ps: . .\build_module.ps1
