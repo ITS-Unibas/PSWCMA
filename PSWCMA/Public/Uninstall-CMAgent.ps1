@@ -20,8 +20,16 @@ Function Uninstall-CMAgent {
         $FilePath = Get-ItemProperty -Path $RegPath -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FilePath
       }
       process {
-        #delete scheduled task
-        Unregister-ScheduledTask -TaskName 'Configuration Management Agent' -Confirm:$false -ErrorAction SilentlyContinue
+        #delete scheduled task: above Windows 7 - for Windows 7 compatibility reasons the task will deleted with Schedule.Service COM object
+        #Unregister-ScheduledTask -TaskName 'Configuration Management Agent' -Confirm:$false -ErrorAction SilentlyContinue
+
+        #delete scheduled task with Schedule.Service COM object
+        $TaskName = 'Configuration Management Agent'          
+        $Service = New-Object -ComObject("Schedule.Service")
+        $Service.Connect()
+        $RootFolder = $Service.GetFolder("\")
+        $RootFolder.DeleteTask($TaskName, 0)
+
         if($FilePath) {
             #remove all files
             Remove-Item -Recurse -Path $FilePath -Force -ErrorAction SilentlyContinue
