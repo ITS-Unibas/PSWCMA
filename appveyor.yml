@@ -7,7 +7,9 @@ install:
       Install-Module "PSWCMA" -Force
 
 skip_commits:
-  message: /readme*/
+  files:
+    - readme.md
+    - PSWCMA/*.psd1
 
 environment:
     NuGetApiKey:

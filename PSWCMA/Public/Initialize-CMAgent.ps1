@@ -133,12 +133,39 @@
         }
 
         try {
-            #Configure Scheduler
-            $Random = Get-Random -Maximum 15
-            $SchedulerAction = New-ScheduledTaskAction -Execute 'powershell' -Argument '-NoProfile -WindowStyle Hidden -command "& {Import-Module PSWCMA; Install-Configurations}"'
+            #Configure local scheduler with Sechedule.Service COM object
+            $TaskProgram = 'powershell'
+            $TaskName = 'Configuration Management Agent'
+            $TaskArgs = '-NoProfile -WindowStyle Hidden -command "& {Import-Module PSWCMA; Install-Configurations}"'            
+            $Service = New-Object -ComObject("Schedule.Service")
+            $Service.Connect()
+            $RootFolder = $Service.GetFolder("\")
+            $TaskDefinition = $Service.NewTask(0)
+            $TaskDefinition.Settings.Enabled = $true
+            $TaskDefinition.Settings.AllowDemandStart = $true
+            $TaskDefinition.Settings.ExecutionTimeLimit = "PT1H"
+            $TaskDefinition.Settings.RunOnlyIfNetworkAvailable = $true
+            $TaskDefinition.Settings.DisallowStartIfOnBatteries = $false
+            $TaskDefinition.Settings.StopIfGoingOnBatteries = $false
+            $TaskDefinition.Principal.RunLevel = 1
+            $Triggers = $TaskDefinition.Triggers.Create(2)
+            $Triggers.Enabled = $true
+            $Triggers.StartBoundary = (Get-Date -Format ("yyyy-MM-ddTHH:MM:ss"))
+            $Triggers.Repetition.Interval = "PT15M"
+            $Triggers.RandomDelay = "PT15M"
+            $Action = $TaskDefinition.Actions.Create(0)
+            $Action.Path = "$TaskProgram"
+            $Action.Arguments = "$TaskArgs"
+            $RootFolder.RegisterTaskDefinition("$TaskName", $TaskDefinition,6,"System", $null, 5)           
+            
+            #Configure Scheduler: above Windows 7 - for Windows 7 compatibility reasons, the scheduled task will be created with Schedule.Service COM object
+
+            <# $Random = Get-Random -Maximum 15 
+            $SchedulerAction = New-ScheduledTaskAction -Execute $TaskProgram -Argument $TaskArgs
             $SchedulerTrigger = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 15) -RepetitionDuration (New-TimeSpan -Days (365 * 20)) -RandomDelay (New-TimeSpan -Minutes $Random)
             $SchedulerSettings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Hours 1)
-            Register-ScheduledTask -User System -TaskName 'Configuration Management Agent' -Action $SchedulerAction -Trigger $SchedulerTrigger -Settings $SchedulerSettings -Force
+            Register-ScheduledTask -User System -TaskName $TaskName -Action $SchedulerAction -Trigger $SchedulerTrigger -Settings $SchedulerSettings -Force #>
+            
         }
         catch {
             Write-Error -Message $_.Exception.Message
