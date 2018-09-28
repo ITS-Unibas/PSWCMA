@@ -120,11 +120,32 @@
             Install-Git
         }
         if (!$PreReq.WinRM) {
-            $NetProfile = Get-NetConnectionProfile
-            if ($NetProfile.NetworkCategory -eq 'Public') {
-                Set-NetConnectionProfile -InterfaceIndex $NetProfile.InterfaceIndex -NetworkCategory Private
-            }
-            Set-WSManQuickConfig -Force
+            # $NetProfile = Get-NetConnectionProfile
+            # if ($NetProfile.NetworkCategory -eq 'Public') {
+            #     Set-NetConnectionProfile -InterfaceIndex $NetProfile.InterfaceIndex -NetworkCategory Private
+            # }
+            # enum NetworkProfile {
+            #     Public = 0
+            #     Private = 1
+            #     Domain = 2
+
+            # }
+            # $NLMType = [Type]::GetTypeFromCLSID('DCB00C01-570F-4A9B-8D69-199FDBA5723B')
+            # $NetworkListManager = [Activator]::CreateInstance($NLMType)
+            # #1= Connected Networks; 2= Disconnected Networks; 3= All Networks --> https://docs.microsoft.com/en-us/windows/desktop/api/netlistmgr/nf-netlistmgr-inetworklistmanager-getnetworks
+            # $ConnectedNetworks = $NetworkListManager.GetNetworks(1)
+            # If(!$ConnectedNetworks) {
+            #     Write-Verbose "There is no network connected. Please connect a network first."
+            #     break
+            # }
+            # foreach($ConnectedNetwork in $ConnectedNetworks) {
+            #     if($ConnectedNetwork.GetCategory() -eq [NetworkProfile]::Public) {
+            #         $ConnectedNetwork.SetCategory([NetworkProfile]::Private)
+            #     }
+            # }
+            
+            #Not needed to set connection profile when using "SkipNetworkProfileCheck"
+            Set-WSManQuickConfig -SkipNetworkProfileCheck -Force
         }
 
         if (!(Test-Prerequisites).All) {

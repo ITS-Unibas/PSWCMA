@@ -41,7 +41,7 @@ Or it can be cloned with git:
 git clone git@github.com:ITS-Unibas/PSWCMA.git
 ```
 
-But when cloned with git, the repository must be cloned or at least copied in one of the defrootault module directories. To get the module directories:
+But when cloned with git, the repository must be cloned or at least copied in one of the default module directories. To get the module directories:
 
 ```powershell
 $ENV:PSModulePath -split ';'
