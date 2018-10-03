@@ -161,7 +161,7 @@
             #Configure local scheduler with Sechedule.Service COM object
             $TaskProgram = 'powershell'
             $TaskName = 'Configuration Management Agent'
-            $TaskArgs = '-NoProfile -WindowStyle Hidden -command "& {Import-Module PSWCMA; Install-Configurations}"'            
+            $TaskArgs = '-ExecutionPolicy bypass -NoProfile -WindowStyle Hidden -command "& {Import-Module PSWCMA; Install-Configurations}"'            
             $Service = New-Object -ComObject("Schedule.Service")
             $Service.Connect()
             $RootFolder = $Service.GetFolder("\")
