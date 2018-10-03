@@ -80,8 +80,12 @@
     }
     process {
         #Secure Password
+        $KeyFile = "$Path\secure.key"
+        $Key = New-Object byte[] 32
+        [Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($Key)
+        $Key | Out-File $KeyFile
         $SecureString = ConvertTo-SecureString -AsPlainText $LDAPPassword -Force
-        $SecuredPW = ConvertFrom-SecureString -SecureString $SecureString
+        $SecuredPW = ConvertFrom-SecureString -SecureString $SecureString -Key $Key
 
         #Write Configuration Cache
         New-Item -Path $RegPath -Force
@@ -157,7 +161,7 @@
             #Configure local scheduler with Sechedule.Service COM object
             $TaskProgram = 'powershell'
             $TaskName = 'Configuration Management Agent'
-            $TaskArgs = '-NoProfile -WindowStyle Hidden -command "& {Import-Module PSWCMA; Install-Configurations}"'            
+            $TaskArgs = '-ExecutionPolicy bypass -NoProfile -WindowStyle Hidden -command "& {Import-Module PSWCMA; Install-Configurations}"'            
             $Service = New-Object -ComObject("Schedule.Service")
             $Service.Connect()
             $RootFolder = $Service.GetFolder("\")
