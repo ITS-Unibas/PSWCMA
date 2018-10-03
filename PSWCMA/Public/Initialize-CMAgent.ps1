@@ -79,6 +79,8 @@
         $ModuleVersion = Get-InstalledModule -Name "PSWCMA" | Select-Object -ExpandProperty Version
     }
     process {
+        #Set Folder
+        New-Item -Path $Path -ItemType Directory -Force
         #Secure Password
         $KeyFile = "$Path\secure.key"
         $Key = New-Object byte[] 32
