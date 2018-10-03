@@ -46,7 +46,8 @@
     process {
         try {
             #Convert secure string back to plaintext
-            $SecureString = ConvertTo-SecureString $Password
+            $Key = Get-Content -Path "$Path\secure.key"
+            $SecureString = ConvertTo-SecureString $Password -Key $Key
             $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecureString)
             $Password = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
             $DirectoryObject = New-Object System.DirectoryServices.DirectoryEntry("LDAP://$($ADServer):636", $UserName, $Password)

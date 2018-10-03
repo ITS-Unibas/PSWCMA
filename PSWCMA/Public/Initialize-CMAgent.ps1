@@ -80,8 +80,12 @@
     }
     process {
         #Secure Password
+        $KeyFile = "$Path\secure.key"
+        $Key = New-Object byte[] 32
+        [Security.Cryptography.RNGCryptoServiceProvider]::Create().GetBytes($Key)
+        $Key | Out-File $KeyFile
         $SecureString = ConvertTo-SecureString -AsPlainText $LDAPPassword -Force
-        $SecuredPW = ConvertFrom-SecureString -SecureString $SecureString
+        $SecuredPW = ConvertFrom-SecureString -SecureString $SecureString -Key $Key
 
         #Write Configuration Cache
         New-Item -Path $RegPath -Force
