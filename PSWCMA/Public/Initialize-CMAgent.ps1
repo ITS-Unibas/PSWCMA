@@ -175,7 +175,7 @@
             $TaskDefinition.Settings.DisallowStartIfOnBatteries = $false
             $TaskDefinition.Settings.StopIfGoingOnBatteries = $false
             $TaskDefinition.Principal.RunLevel = 1
-            $Triggers = $TaskDefinition.Triggers.Create(2)
+            $Triggers = $TaskDefinition.Triggers.Create(1)
             $Triggers.Enabled = $true
             $Triggers.StartBoundary = (Get-Date -Format ("yyyy-MM-ddTHH:MM:ss"))
             $Triggers.Repetition.Interval = "PT15M"
