@@ -163,7 +163,7 @@
             #Configure local scheduler with Sechedule.Service COM object
             $TaskProgram = 'powershell'
             $TaskName = 'Configuration Management Agent'
-            $TaskArgs = '-ExecutionPolicy bypass -NoProfile -WindowStyle Hidden -command "& {Import-Module PSWCMA; Install-Configurations}"'            
+            $TaskArgs = '-ExecutionPolicy bypass -NoProfile -NonInteractive -WindowStyle Hidden -command "& {Import-Module PSWCMA; Install-Configurations}"'            
             $Service = New-Object -ComObject("Schedule.Service")
             $Service.Connect()
             $RootFolder = $Service.GetFolder("\")
@@ -174,8 +174,9 @@
             $TaskDefinition.Settings.RunOnlyIfNetworkAvailable = $true
             $TaskDefinition.Settings.DisallowStartIfOnBatteries = $false
             $TaskDefinition.Settings.StopIfGoingOnBatteries = $false
+            $TaskDefinition.Settings.Compatibility = 2
             $TaskDefinition.Principal.RunLevel = 1
-            $Triggers = $TaskDefinition.Triggers.Create(2)
+            $Triggers = $TaskDefinition.Triggers.Create(1)
             $Triggers.Enabled = $true
             $Triggers.StartBoundary = (Get-Date -Format ("yyyy-MM-ddTHH:MM:ss"))
             $Triggers.Repetition.Interval = "PT15M"
