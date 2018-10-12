@@ -216,4 +216,67 @@ InModuleScope "PSWCMA" {
             }
         }
     }
+
+    Describe "Logfiles" {
+        $FilePath = (Join-Path -Path $TestPath -ChildPath 'pswcma.log')
+        Context "Write in logfile" {
+            
+            It "log file should be created"{
+                Write-Log -Path $TestPath -Message 'This is a test message'
+                Test-Path -Path $FilePath | Should be $true
+            }
+
+            It "log level without param should be 'INFORMATION'"{
+                Write-Log -Path $TestPath -Message 'This is a test message'
+                $Content = Get-Content -Path $FilePath -Tail 1
+                $Content -match 'INFORMATION' | Should Be $true
+            }
+
+            It "log level INFORMATION"{
+                Write-Log -Path $TestPath -Level INFORMATION -Message 'This is a test message'
+                $Content = Get-Content -Path $FilePath -Tail 1
+                $Content -match 'INFORMATION' | Should Be $true
+            }
+
+            It "log level ERROR"{
+                Write-Log -Path $TestPath -Level ERROR -Message 'This is a test message'
+                $Content = Get-Content -Path $FilePath -Tail 1
+                $Content -match 'ERROR' | Should Be $true
+            }
+
+            It "log level WARNING"{
+                Write-Log -Path $TestPath -Level WARNING -Message 'This is a test message'
+                $Content = Get-Content -Path $FilePath -Tail 1
+                $Content -match 'WARNING' | Should Be $true
+            }
+
+            It "log level VERBOSE"{
+                Write-Log -Path $TestPath -Level VERBOSE -Message 'This is a test message'
+                $Content = Get-Content -Path $FilePath -Tail 1
+                $Content -match 'VERBOSE' | Should Be $true
+            }
+
+            It "log level DEBUG"{
+                Write-Log -Path $TestPath -Level DEBUG -Message 'This is a test message'
+                $Content = Get-Content -Path $FilePath -Tail 1
+                $Content -match 'DEBUG' | Should Be $true
+            }
+
+        }
+
+        Context "log rotate" {
+            it "rotate a log" {
+                New-Item -Path $FilePath -Force
+                Add-Content -Path $FilePath "testetesetset"
+                Add-Content -Path $FilePath "testetesetset"
+                New-Item -Path "$($FilePath).1" -Force
+                New-Item -Path "$($FilePath).2" -Force
+                $FilePath = Get-Item $FilePath | Select-Object -ExpandProperty FullName
+                $TimeStampBefore = Get-Item -Path $FilePath | Select-Object -ExpandProperty LastWriteTime
+                Reset-Log -Path $FilePath -Count 2 -Size 0.00001
+                $TimeStampAfter = Get-Item -Path $FilePath | Select-Object -ExpandProperty LastWriteTime
+                $TimeStampBefore -ne $TimeStampAfter | Should Be $true
+            }
+        }
+    }
 }
