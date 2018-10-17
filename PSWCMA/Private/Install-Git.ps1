@@ -94,7 +94,7 @@ Function Install-Git {
 
             }
             Write-Log -Level INFORMATION -Message "Installation complete!"
-            Write-Verbose "`nInstallation complete!`n`n" -ForegroundColor Green
+            Write-Verbose "`nInstallation complete!`n`n"
         }
         finally {
             #Refresh der PATH environment variable
