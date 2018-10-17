@@ -185,7 +185,7 @@
             $Action.Path = "$TaskProgram"
             $Action.Arguments = "$TaskArgs"
             $RootFolder.RegisterTaskDefinition("$TaskName", $TaskDefinition,6,"System", $null, 5)           
-            
+            Write-Log -Level INFORMATION -Message "The task scheduler `'$TaskName`' has been created"
             #Configure Scheduler: above Windows 7 - for Windows 7 compatibility reasons, the scheduled task will be created with Schedule.Service COM object
 
             <# $Random = Get-Random -Maximum 15 
@@ -196,7 +196,8 @@
             
         }
         catch {
-            Write-Error -Message $_.Exception.Message
+            Write-Error -Level ERROR -Message $_.Exception.Message
+            #Write-Error -Message $_.Exception.Message
             Write-Debug "There was an error creating the scheduled task. Please try again"
         }
 

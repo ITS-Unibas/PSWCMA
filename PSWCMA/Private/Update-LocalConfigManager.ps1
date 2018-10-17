@@ -66,7 +66,8 @@
         #Actual update of LCM
         Set-DscLocalConfigurationManager -Path $LCMFolder -Force
       } catch {
-        Write-Error -Message $_.Exception.Message
+        Write-Log -Level ERROR -Message $_.Exception.Message
+        #Write-Error -Message $_.Exception.Message
       }
 
 

@@ -30,7 +30,7 @@
             #Reads groups from the cache. Chache has to be in json
             $Groups = Get-Content -Raw -Path  "$Path\$Filename" | ConvertFrom-Json
         } catch {
-            Write-Error -Message $_.Exception.Message
+            Write-Log -Level ERROR -Message "Group Cache couldn't be created, $($_.Exception.Message)"
         }
     }
     end {

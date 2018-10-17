@@ -41,9 +41,11 @@ function Test-FileHash {
             #Read cached hash
             $ChachedHash = $Hashes.FileHashes | Select-Object -ExpandProperty $FileName -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Hash -ErrorAction SilentlyContinue
             if($null -ne $ChachedHash -and $CurrentHash -eq $ChachedHash) {
+                Write-Log -Level INFORMATION -Message "All files are up to date"
                 return $true
             }
         }
+        Write-Log -Level WARNING -Message "File for $GroupName is outdated, so there have to be a new version. Hash will be updated"
         return $false
     }
     end{
