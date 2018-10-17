@@ -100,7 +100,7 @@
         New-ItemProperty -Path $RegPath -Name 'BaseLineConfig' -Value $Baseline -PropertyType String -Force
         New-ItemProperty -Path $RegPath -Name 'TestGroup' -Value $TestGroup -PropertyType String -Force
         New-ItemProperty -Path $RegPath -Name 'TestBranchName' -Value $TestBranchName -PropertyType String -Force
-
+        Write-Log -Level INFORMATION -Message "Module config was written to the registry `'HKLM:\SOFTWARE\PSWCMA`'"
 
         #Write appwiz data
         New-Item -Path $RegPathAppwiz -Force
@@ -116,10 +116,23 @@
         New-ItemProperty -Path $RegPathAppwiz -Name 'InstallLocation' -Value 'C:\Program Files\WindowsPowerShell\Modules\PSWCMA' -PropertyType String -Force
         New-ItemProperty -Path $RegPathAppwiz -Name 'UninstallString' -Value '"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -WindowStyle Hidden -command "& {Import-Module PSWCMA; Uninstall-CMAgent}"' -PropertyType String -Force
         New-ItemProperty -Path $RegPathAppwiz -Name 'DisplayIcon' -Value '%SystemRoot%\System32\SHELL32.dll,238' -PropertyType ExpandString -Force
+        
+        Write-Log -Level INFORMATION -Message "Created appwiz entry for better overview"
 
+        try {
+            Install-Module PackageManagement -RequiredVersion '1.2.2' -Force -ErrorAction Stop
+            if (Get-InstalledModule -Name PackageManagement -RequiredVersion '1.2.2' -ErrorAction SilentlyContinue) {
+                Write-Log -Level INFORMATION -Message "PackageManagement module version 1.2.2 was installed"
+            } else {
+                throw [System.Exception]::new("PackageManagement was not installed")
+            }
+        } catch {
+            Write-Log -Level ERROR -Message $_.Exception.Message
+        }
         #Install Pre-Reqs
         if (!$PreReq.WMF) {
-            Write-Error 'WMFVersion is lower than 5'
+            Write-Log -Level ERROR -Message "You are not running WMF 5, please install WMF5 first"
+            #Write-Error 'WMFVersion is lower than 5'
             break
         }
         if (!$PreReq.Git) {
@@ -151,11 +164,13 @@
             # }
             
             #Not needed to set connection profile when using "SkipNetworkProfileCheck"
+            Write-Log -Level INFORMATION -Message "Enabling winrm"
             Set-WSManQuickConfig -SkipNetworkProfileCheck -Force
         }
 
         if (!(Test-Prerequisites).All) {
-            Write-Error 'There was an error installing the Prequisites'
+            Write-Log -Level ERROR -Message "There was an error installing the prerquisites"
+            #Write-Error 'There was an error installing the Prequisites'
             break
         }
 
@@ -196,7 +211,7 @@
             
         }
         catch {
-            Write-Error -Level ERROR -Message $_.Exception.Message
+            Write-Log -Level ERROR -Message $_.Exception.Message
             #Write-Error -Message $_.Exception.Message
             Write-Debug "There was an error creating the scheduled task. Please try again"
         }
