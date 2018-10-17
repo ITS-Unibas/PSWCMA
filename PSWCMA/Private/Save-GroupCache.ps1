@@ -32,12 +32,14 @@
     }
     process {
         try {
+            #TO-DO: Should not be needed anymore --> Have to check
             if (!(Test-Path $Path)) {
                 Write-Verbose "$Path is not existing. Will be created"
                 New-Item -Path $Path -ItemType Directory | Out-Null
             }
             #Converts the received data(groups) in a valid json file
             $Data | ConvertTo-Json | Out-File -FilePath "$Path\$Filename" -Force
+            Write-Log -Level INFORMATION -Message "File created at $Path\$Filename"
             Write-Verbose "File created at $Path\$Filename"
         } catch {
             Write-Error -Message $_.Exception.Message

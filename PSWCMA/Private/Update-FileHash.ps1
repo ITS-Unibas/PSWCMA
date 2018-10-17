@@ -67,6 +67,6 @@ function Update-FileHash {
         }
     }
     end {
-
+        Write-Log -Level INFORMATION -Message "Hashes have been updated"
     }
 }

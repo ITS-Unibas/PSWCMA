@@ -67,11 +67,13 @@
                 $Groups.Add($GroupObject) | Out-Null
             }
             Write-Verbose "Computer is in the following Groups $Groups"
+            Write-Log -Message "$Localhost is in $($Groups.Count) AD Groups"
             $isOnline = $true
             
         }
         catch {
-            Write-Verbose -Message $_.Exception.Message
+            Write-Log -Level ERROR -Message $_.Exception.Message
+            Write-Log -Level WARNING -Message "Unable to get Groups from AD for this computer $Localhost"
             Write-Warning "Unable to get Groups from AD for this computer $Localhost"
         }
 

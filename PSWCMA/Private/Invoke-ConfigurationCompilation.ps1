@@ -20,12 +20,13 @@ Function Invoke-ConfigurationCompilation {
 
       begin{
         if(!(Test-Path -Path $Path)) {
-            Write-Verbose "The path is invalid"
+            Write-Log -Level WARNING -Message "The Path is invalid"
             break
         }
         #Fetch filename 
         $FileName = Get-ChildItem -Path $Path | Select-Object -ExpandProperty Name
         Write-Verbose "Beginning to compile $FileName"
+        Write-Log -Level INFORMATION -Message "Beginning to compile $FileName"
       } 
       process {
         #Execute configuration to compile it 
@@ -33,7 +34,8 @@ Function Invoke-ConfigurationCompilation {
         Write-Verbose "$Result"
       }
       end {
-        return $Result
+        Write-Log -Level INFORMATION -Message "Finished compiling the configuration"
         Write-Verbose "Finished compiling the configuration"
+        return $Result
       }
 }

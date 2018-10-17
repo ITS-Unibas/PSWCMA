@@ -48,16 +48,19 @@ Function Install-Git {
             $ProgressPreference = 'SilentlyContinue'
 
             if (!(Test-Path $gitExePath)) {
-                Write-Host "`nDownloading latest stable git..." -ForegroundColor Yellow
+                Write-Verbose "`nDownloading latest stable git..." 
+                Write-Log -Level INFORMATION -Message "Downloading latest stable git..."
                 Remove-Item -Force $env:TEMP\git-stable.exe -ErrorAction SilentlyContinue
                 Invoke-WebRequest -Uri $dlurl -OutFile $env:TEMP\git-stable.exe
 
-                Write-Host "`nInstalling git..." -ForegroundColor Yellow
+                Write-Verbose "`nInstalling git..." 
+                Write-Log -Level INFORMATION -Message "Installing git..."
                 Start-Process -Wait $env:TEMP\git-stable.exe -ArgumentList /silent
             }
             else {
                 $updateneeded = $false
-                Write-Host "`ngit is already installed. Check if possible update..." -ForegroundColor Yellow
+                Write-Log -Level INFORMATION -Message "git is already installed. Check if possible update..."
+                Write-Verbose "`ngit is already installed. Check if possible update..." 
                 (git version) -match "(\d*\.\d*\.\d*)" | Out-Null
                 $installedversion = $matches[0].split('.')
                 $newver -match "(\d*\.\d*\.\d*)" | Out-Null
@@ -68,26 +71,30 @@ Function Install-Git {
                 }
 
                 if ($updateneeded) {
-
-                    Write-Host "`nUpdate available. Downloading latest stable git..." -ForegroundColor Yellow
+                    Write-Log -Level INFORMATION -Message "Update available. Downloading latest stable git..."
+                    Write-Verbose "`nUpdate available. Downloading latest stable git..." 
                     Remove-Item -Force $env:TEMP\git-stable.exe -ErrorAction SilentlyContinue
                     Invoke-WebRequest -Uri $dlurl -OutFile $env:TEMP\git-stable.exe
 
-                    Write-Host "`nInstalling update..." -ForegroundColor Yellow
+                    Write-Log -Level INFORMATION -Message "Installing update..."
+                    Write-Verbose "`nInstalling update..." 
                     $sshagentrunning = get-process ssh-agent -ErrorAction SilentlyContinue
                     if ($sshagentrunning) {
-                        Write-Host "`nKilling ssh-agent..." -ForegroundColor Yellow
+                        Write-Log -Level WARNING -Message "Killing ssh-agent..."
+                        Write-Verbose "`nKilling ssh-agent..." 
                         Stop-Process $sshagentrunning.Id
                     }
 
                     Start-Process -Wait $env:TEMP\git-stable.exe -ArgumentList /silent
                 }
                 else {
-                    Write-Host "`nNo update available. Already running latest version..." -ForegroundColor Yellow
+                    Write-Log -Level INFORMATION -Message "No update available. Already running latest version..."
+                    Write-Verbose "`nNo update available. Already running latest version..." 
                 }
 
             }
-            Write-Host "`nInstallation complete!`n`n" -ForegroundColor Green
+            Write-Log -Level INFORMATION -Message "Installation complete!"
+            Write-Verbose "`nInstallation complete!`n`n"
         }
         finally {
             #Refresh der PATH environment variable
