@@ -11,24 +11,32 @@
     [CmdletBinding()]
     param()
     begin {
-        Write-Log -Level INFORMATION -Message "Starting installing all the configurations"
-        $PreReqs = Test-Prerequisites
-        #TO-DO: Self-Repair function
-        if (!$PreReqs.All) {
-            #Write-Error -Message "This client is not fullfilling all the Prerequisites"
-            Write-Log -Level ERROR -Message "This client is not fullfilling all the Prerequisites"
-            Write-Log -Level INFORMATION -Message "Please run Initialize-CMAgent first"
-            #Write-Debug "Please run Initialize-CMAgent first"
-            break
-        }
+        
         $ModuleConfig = Get-ItemProperty -Path 'HKLM:\SOFTWARE\PSWCMA' -ErrorAction SilentlyContinue
         if ($null -eq $ModuleConfig) {
             #Write-Error "There is no Configuration available"
-            Write-Log -Level ERROR -Message "There is no Configuration available"
-            Write-Log -Level INFORMATION -Message "Please run Initialize-CMAgent first"
+            Write-Log -Level ERROR -Message "There is no Configuration available" -Path 'C:\Windows\Temp'
+            Write-Log -Level INFORMATION -Message "Please run Initialize-CMAgent first" -Path 'C:\Windows\Temp'
+            Write-Host 'Log is written to C:\Windows\Temp\pswcma.log'
             #Write-Debug "Please run Initialize-CMAgent first"
             break
         }
+        $PreReqs = Test-Prerequisites
+        #TO-DO: Self-Repair function
+        if (!$PreReqs.All) {
+            if($null -eq $ModuleConfig){
+                #Write-Error -Message "This client is not fullfilling all the Prerequisites"
+                Write-Log -Level ERROR -Message "This client is not fullfilling all the Prerequisites" -Path 'C:\Windows\Temp'
+                Write-Log -Level INFORMATION -Message "Please run Initialize-CMAgent first" -Path 'C:\Windows\Temp'
+                Write-Host 'Log is written to C:\Windows\Temp\pswcma.log'
+                #Write-Debug "Please run Initialize-CMAgent first"
+            } else {
+                Write-Log -Level ERROR -Message "This client is not fullfilling all the Prerequisites"
+                Write-Log -Level INFORMATION -Message "Please run Initialize-CMAgent again" 
+            }
+            break
+        }
+        Write-Log -Level INFORMATION -Message "Starting installing all the configurations"
         $ConfigurationPath = "$($ModuleConfig.FilePath)\Configuration"
         $Groups = [array](Get-ConfigurationGroups -Filter $ModuleConfig.AdFilter -ADServer $ModuleConfig.ActiveDirectory -UserName $ModuleConfig.LDAPUserName -Password $ModuleConfig.LDAPPassword -Path $ModuleConfig.FilePath -Baseline $ModuleConfig.BaseLineConfig)
         if ($null -eq $Groups) {
