@@ -28,15 +28,21 @@ Function Write-Log {
     [ValidateSet('ERROR', 'WARNING', 'INFORMATION', 'DEBUG', 'VERBOSE')]
     [alias('L')]
     [string]$Level = 'INFORMATION',
-    [Parameter(Mandatory = $true)]
+    [Parameter(Mandatory = $false)]
     [alias('P')]
     [string]$Path
   )
 
   begin  {
       $FileName = "pswcma.log"
-      $LogPath = Join-Path -Path $Path -ChildPath $FileName
       $TimeStamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss.ff'
+      
+      if(!$Path) {
+        #Fixed value because each function uses other paths
+        $Path = Get-ItemPropertyValue -Path 'HKLM:\SOFTWARE\PSWCMA' -Name 'FilePath'
+      }
+      $LogPath = Join-Path -Path $Path -ChildPath $FileName
+      Reset-Log -Path $Path
   }
   process {
     if(!(Test-Path -Path $LogPath -ErrorAction SilentlyContinue)) {
