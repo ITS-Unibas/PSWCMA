@@ -17,7 +17,8 @@ InModuleScope "PSWCMA" {
             $Data = New-Object System.Collections.ArrayList
             $Data.Add($DataObject)
             $Data.Add($DataObject2)
-
+            Mock Get-ItemPropertyValue {return 'HKLM:\SOFTWARE\PSWCMA'}
+            Mock Write-Log {}
             It "creates cache with group" {
                 Save-GroupCache -Path $TestPath -Data $DataObject
                 Test-Path -Path $FilePath | Should Be $true
@@ -55,7 +56,8 @@ InModuleScope "PSWCMA" {
                 Hash = $TestHash
             }
             Mock Get-FileHash {return $HashObject }
-            
+            Mock Get-ItemPropertyValue {return 'HKLM:\SOFTWARE\PSWCMA'}
+            Mock Write-Log {}
             Update-FileHash -Path $TestPath -GroupNames $GroupObject
             It "should create a new file" {
                 Test-Path $FilePath | Should Be $true
@@ -74,6 +76,8 @@ InModuleScope "PSWCMA" {
                 Hash = '1E63BE41E7292087BAEAD08862EDD1130B0642731363C4250721CEE45D1ABFC8'
             }
             Mock Get-FileHash {return $HashObject}
+            Mock Get-ItemPropertyValue {return 'HKLM:\SOFTWARE\PSWCMA'}
+            Mock Write-Log {}
             Set-Content -Path $FilePath -Value $Content
 
             It "check old hash" {
@@ -101,6 +105,8 @@ InModuleScope "PSWCMA" {
             }
             Set-Content -Path $FilePath -Value $Content
             Mock Get-FileHash {return $HashObject}
+            Mock Get-ItemPropertyValue {return 'HKLM:\SOFTWARE\PSWCMA'}
+            Mock Write-Log {}
             It "no updated needed" {
                 Test-FileHash -GroupName $TestGroup -Path $TestPath | Should Be $true
             }
